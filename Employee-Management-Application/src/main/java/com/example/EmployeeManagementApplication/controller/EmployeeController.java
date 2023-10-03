@@ -7,6 +7,7 @@ import com.example.EmployeeManagementApplication.dto.RegisterRequest;
 import com.example.EmployeeManagementApplication.model.Employee;
 import com.example.EmployeeManagementApplication.model.Project;
 import com.example.EmployeeManagementApplication.repository.EmployeeRepository;
+import com.example.EmployeeManagementApplication.repository.ProjectRepository;
 import com.example.EmployeeManagementApplication.security.Role;
 import com.example.EmployeeManagementApplication.service.EmployeeService;
 
@@ -37,6 +38,9 @@ public class EmployeeController {
 
     @Autowired
     private EmployeeService employeeService;
+
+    @Autowired
+    private ProjectRepository projectRepository;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -106,6 +110,18 @@ public class EmployeeController {
         Employee employee = registrationRepository.findById(id).orElse(null);
         if (employee == null) {
             return ResponseEntity.status(HttpStatus.OK).body("Project with ID " + id + " does not exist");
+        }
+
+        List<Project> managedProjects = projectRepository.findByManagerId(id);
+        if (!managedProjects.isEmpty()) {
+            StringBuilder projectList = new StringBuilder();
+            for (Project project : managedProjects) {
+                projectList.append(project.getTitle()).append(", ");
+            }
+            projectList.delete(projectList.length() - 2, projectList.length() - 1); // Remove last comma
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Employee with ID " + id + " is a manager of the following project(s): " + projectList.toString() + ". Handle it.");
         }
 
         List<Project> projects = employee.getProject();
