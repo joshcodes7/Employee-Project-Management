@@ -9,6 +9,8 @@ import com.example.EmployeeManagementApplication.model.Project;
 import com.example.EmployeeManagementApplication.repository.EmployeeRepository;
 import com.example.EmployeeManagementApplication.security.Role;
 import com.example.EmployeeManagementApplication.service.EmployeeService;
+
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
+@SecurityRequirement(name = "BearerAuth")
 public class EmployeeController {
 
 
@@ -74,12 +77,10 @@ public class EmployeeController {
 
         Employee employee = employeeService.getEmployeeById(id);
 
-        // Check if the employee exists
         if (employee == null) {
             return ResponseEntity.status(HttpStatus.OK).body("Employee with ID " + id + " does not exist");
         }
 
-        // Get the first name, last name, and project title
         String firstName = employee.getFirstName();
         String lastName = employee.getLastName();
 
